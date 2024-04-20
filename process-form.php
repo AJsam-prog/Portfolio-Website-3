@@ -1,36 +1,41 @@
 <?php
+// Only process POST requests
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Collect form data
-    $name = trim($_POST["name"]);
-    $email = trim($_POST["email"]);
+    // Get the form fields and remove whitespace
+    $name = strip_tags(trim($_POST["name"]));
+    $name = str_replace(array("\r","\n"),array(" "," "),$name);
+    $email = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
     $phone = trim($_POST["phone"]);
     $message = trim($_POST["message"]);
 
-    // Validate form data (you can add more validation if needed)
-    if (empty($name) || empty($email) || empty($message)) {
-        // Handle empty fields
-        echo "Please fill in all required fields.";
-        exit;
-    }
+    // Set the recipient email address
+    $recipient = "iamajsam@gmail.com"; // Your email address
 
-    // Prepare email message
-    $to = "iamajsam@gmail.com"; // Your email address
-    $subject = "New message from contact form";
-    $body = "Name: $name\n";
-    $body .= "Email: $email\n";
-    $body .= "Phone: $phone\n";
-    $body .= "Message:\n$message";
+    // Set the email subject
+    $subject = "New contact from $name";
 
-    // Send email
-    if (mail($to, $subject, $body)) {
-        // Email sent successfully
-        echo "Message sent successfully!";
+    // Build the email content
+    $email_content = "Name: $name\n";
+    $email_content .= "Email: $email\n\n";
+    $email_content .= "Phone: $phone\n\n";
+    $email_content .= "Message:\n$message\n";
+
+    // Build the email headers
+    $email_headers = "From: $name <$email>";
+
+    // Send the email
+    if (mail($recipient, $subject, $email_content, $email_headers)) {
+        // Set a 200 (okay) response code
+        http_response_code(200);
+        echo "Thank You! Your message has been sent.";
     } else {
-        // Error sending email
-        echo "Error sending message. Please try again later.";
+        // Set a 500 (internal server error) response code
+        http_response_code(500);
+        echo "Oops! Something went wrong and we couldn't send your message.";
     }
 } else {
-    // Handle non-POST requests
-    echo "Invalid request method.";
+    // Not a POST request, set a 403 (forbidden) response code
+    http_response_code(403);
+    echo "There was a problem with your submission, please try again.";
 }
 ?>
