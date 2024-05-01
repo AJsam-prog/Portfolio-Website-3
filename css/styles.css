@@ -11720,7 +11720,7 @@ html {
     width: 1.5vw;
     left: -2vw;
   }
-  .fa.fa-twitter::before {
+  .bi.bi-twitter::before {
     display: inline-block;
     width: 1em;
     height: 1em;
